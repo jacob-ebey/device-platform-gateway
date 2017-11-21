@@ -8,11 +8,8 @@ module.exports = function(configuration, closedCallback) {
   const parser = new ByteLength({ length: 1 }); // Read byte per byte
   const serial = new SerialPort(configuration.port, {
     baudRate: configuration.baudRate,
+    autoOpen: false,
     parser
-  }, function (err) {
-    if (closedCallback) {
-      closedCallback(configuration, err)
-    }
   });
 
 
@@ -53,4 +50,11 @@ module.exports = function(configuration, closedCallback) {
       closedCallback(configuration);
     }
   });
+
+  serial
+    .open((ex) => {
+      if (closedCallback) {
+        closedCallback(configuration, ex);
+      }
+    })
 };
