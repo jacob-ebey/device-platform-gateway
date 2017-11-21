@@ -31,7 +31,7 @@ module.exports = function(configuration, closedCallback) {
     } else {
       // If constructing the new message is complete
       const newLength = currentMessage.write(data.slice(0, 1));
-      if (newLength >== MESSAGE_LENGTH) {
+      if (newLength >= MESSAGE_LENGTH) {
         // Parse the recieved bytes into a message
         const message = {
           deviceId: currentMessage[0],
