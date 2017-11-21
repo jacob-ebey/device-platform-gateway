@@ -1,7 +1,12 @@
 const configuration = require('./configuration');
 const serialConnection = require('./src/serialConnection');
 
-function handleSerialClosed(config, err) {
+function handleMessage(message) {
+  // Pretty print the object to the console
+  console.log(JSON.stringify(message, null, 2));
+}
+
+function handleClosed(config, err) {
   if (err) {
     console.log('\nFailed to open: ' + config.port + '\n')
   } else {
@@ -9,7 +14,8 @@ function handleSerialClosed(config, err) {
   }
 }
 
-serialConnection(configuration, handleSerialClosed);
+serialConnection(configuration, handleMessage, { closedCallback: handleClosed, debug: true });
+
 
 console.log('Press any key to exit');
 

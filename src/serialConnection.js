@@ -3,8 +3,7 @@ const ByteLength = SerialPort.parsers.ByteLength;
 
 const MESSAGE_START = Buffer.from([0]);
 
-// The closedCallback is passed an error in addition to the configruation if it fails on open
-module.exports = function(configuration, closedCallback) {
+module.exports = function(configuration, messageCallback, options = { closedCallback: undefined, debug: false }) {
   const parser = new ByteLength({ length: 1 }); // Read byte per byte
   const serial = new SerialPort(configuration.port, {
     baudRate: configuration.baudRate,
@@ -14,7 +13,9 @@ module.exports = function(configuration, closedCallback) {
 
 
   serial.on('open', function() {
-    console.log('\nOpened Port: ' + configuration.port + 'Baud Rate: ' + configuration.baudRate + '\n');
+    if (options.debug) {
+      console.log('\nOpened Port: ' + configuration.port + 'Baud Rate: ' + configuration.baudRate + '\n');
+    }
   });
 
   // A buffer to hold the deviceId(byte) and currentValue(float: 4 bytes)
@@ -38,23 +39,24 @@ module.exports = function(configuration, closedCallback) {
         // Reset the current message
         currentMessage = new Buffer(MESSAGE_LENGTH);
 
-        // TODO: Send off via iot hub
-        console.log(message);
+        if (messageCallback) {
+          messageCallback(message);
+        }
       }
 
     }
   });
 
   serial.on('close', function() {
-    if (closedCallback) {
-      closedCallback(configuration);
+    if (options.closedCallback) {
+      options.closedCallback(configuration);
     }
   });
 
   serial
-    .open((ex) => {
-      if (closedCallback) {
-        closedCallback(configuration, ex);
+    .open((err) => {
+      if (options.closedCallback) {
+        options.closedCallback(configuration, err);
       }
     })
 };
