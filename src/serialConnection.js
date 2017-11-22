@@ -1,6 +1,8 @@
 const SerialPort = require('serialport');
 const ByteLength = SerialPort.parsers.ByteLength;
 
+const messageParser = require('./messageParser');
+
 const MESSAGE_START = Buffer.from([0]);
 
 module.exports = function(configuration, messageCallback, options = { closedCallback: undefined, debug: false }) {
@@ -18,34 +20,9 @@ module.exports = function(configuration, messageCallback, options = { closedCall
     }
   });
 
-  // A buffer to hold the deviceId(byte) and currentValue(float: 4 bytes)
-  const MESSAGE_LENGTH = 5;
-  const currentMessage = new Buffer(MESSAGE_LENGTH);
-
-  serial.on('data', function(data) {
-    // data is a Buffer that contains a single byte
-    if (data.compare(MESSAGE_START) === 0) {
-      currentMessage = new Buffer(5);
-    } else {
-      // If constructing the new message is complete
-      const newLength = currentMessage.write(data.slice(0, 1));
-      if (newLength >= MESSAGE_LENGTH) {
-        // Parse the recieved bytes into a message
-        const message = {
-          deviceId: currentMessage[0],
-          value: data.readFloatLE(1)
-        };
-
-        // Reset the current message
-        currentMessage = new Buffer(MESSAGE_LENGTH);
-
-        if (messageCallback) {
-          messageCallback(message);
-        }
-      }
-
-    }
-  });
+  const messageHandler = messageParser(messageCallback);
+  // data is a Buffer that contains a single byte
+  serial.on('data', messageHandler);
 
   serial.on('close', function() {
     if (options.closedCallback) {

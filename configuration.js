@@ -1,5 +1,5 @@
 
 module.exports = {
-    port: '/dev/tty0',
-    baudRate: 9600
+    port: '/dev/ttyACM0',
+    baudRate: 57600
 };

@@ -4,11 +4,22 @@
   "description": "The code that runs on a gateway device",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/.bin/jest"
   },
   "author": "Jacob Ebey",
   "license": "ISC",
+  "jest": {
+    "verbose": true,
+    "collectCoverageFrom": [
+      "**/*.test.{js}",
+      "!**/node_modules/**",
+      "!**/vendor/**"
+    ]
+  },
   "dependencies": {
     "serialport": "^6.0.4"
+  },
+  "devDependencies": {
+    "jest": "21.2.1"
   }
 }
